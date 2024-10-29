@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DeepAuthenFace: Multi-Modal Feature Integration and Attention Mechanisms for Robust Real vs. AI-Generated Face Identification</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 40px;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            color: #333;
+        }
+        header, footer {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        h1, h2, h3, h4 {
+            color: #2c3e50;
+        }
+        a {
+            color: #2980b9;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        .author-list {
+            list-style: none;
+            padding: 0;
+        }
+        .author-list li {
+            display: inline-block;
+            margin: 0 10px;
+        }
+        .contact-info {
+            margin-top: 10px;
+        }
+        .content-section {
+            margin-bottom: 40px;
+        }
+        img {
+            max-width: 100%;
+            height: auto;
+        }
+        pre {
+            background-color: #f4f4f4;
+            padding: 10px;
+            overflow-x: auto;
+        }
+        code {
+            background-color: #f4f4f4;
+            padding: 2px 4px;
+            border-radius: 4px;
+        }
+        .references {
+            list-style-type: decimal;
+            padding-left: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>DeepAuthenFace: Multi-Modal Feature Integration and Attention Mechanisms for Robust Real vs. AI-Generated Face Identification</h1>
+        <ul class="author-list">
+            <li><strong>Haijian Wang</strong></li>
+            <li><strong>ZhangBei Ding</strong></li>
+            <li><strong>Yefan Niu</strong></li>
+            <li><strong>Xiaoming Zhang</strong></li>
+        </ul>
+        <div class="contact-info">
+            <p>
+                <a href="https://github.com/Time-machine/DeepAuthenFace" target="_blank">GitHub Repository</a> |
+                <a href="https://huggingface.co/Time-machine/DeepAuthenFace" target="_blank">Hugging Face</a> |
+                <a href="mailto:haijian.wang@example.com">haijian.wang@example.com</a>
+            </p>
+        </div>
+    </header>
+
+    <section class="content-section">
+        <h2>Abstract</h2>
+        <p>
+            With the rapid advancement of Generative Adversarial Networks (GANs) and diffusion models, AI-generated face images have become visually indistinguishable from real faces, posing potential risks to social security and privacy protection. This paper presents <strong>DeepAuthenFace</strong>, an advanced face detection model that leverages multi-modal feature integration and attention mechanisms to accurately differentiate between authentic and AI-generated faces. The model employs a combination of high-level semantic features, texture analysis, frequency domain characteristics, edge information, and local binary patterns, which are meticulously fused using attention-based neural networks to enhance classification performance. Comprehensive experiments demonstrate the efficacy of DeepAuthenFace in achieving robust and high-precision face authenticity detection.
+        </p>
+    </section>
+
+    <section class="content-section">
+        <h2>1. Introduction</h2>
+        <p>
+            The proliferation of AI-generated imagery, particularly human faces, has significant implications for various domains, including security, privacy, and digital forensics. Traditional face detection systems primarily focus on recognizing facial features and expressions, often overlooking subtle artifacts introduced by generative models. To address this challenge, we propose DeepAuthenFace, a sophisticated model designed to discern the authenticity of facial images by integrating multiple feature modalities and employing attention mechanisms to prioritize critical information.
+        </p>
+    </section>
+
+    <section class="content-section">
+        <h2>2. Model Architecture</h2>
+        <img src="assets/updated_model_architecture.jpg" alt="Model Architecture Diagram">
+        <h3>2.1. Backbone Network (EfficientNetV2-B2)</h3>
+        <p>
+            The backbone of DeepAuthenFace is the pre-trained EfficientNetV2-B2 model, renowned for its superior feature extraction capabilities on the ImageNet dataset. To enhance training efficiency and prevent overfitting, the initial convolutional layers (<code>conv_stem</code>) and the first batch normalization layer (<code>bn1</code>) are frozen. The network outputs a 1408-dimensional feature vector, providing rich high-level semantic information essential for subsequent multi-feature fusion.
+        </p>
+        <pre><code>
+# Freezing initial layers
+for param in self.efficientnet.conv_stem.parameters():
+    param.requires_grad = False
+for param in self.efficientnet.bn1.parameters():
+    param.requires_grad = False
+        </code></pre>
+
+        <h3>2.2. Gray-Level Co-occurrence Matrix (GLCM) Features</h3>
+        <p>
+            GLCM is employed to capture spatial gray-level relationships within the image, extracting texture-related features. The process involves:
+        </p>
+        <ol>
+            <li><strong>Gray Level Quantization</strong>: Reducing image gray levels to 64 to simplify computations.</li>
+            <li><strong>GLCM Computation</strong>: Calculating GLCM at four angles (0°, 45°, 90°, 135°) with a pixel distance of 1.</li>
+            <li><strong>Feature Extraction</strong>: Deriving contrast, dissimilarity, homogeneity, energy, and correlation from the GLCM, resulting in a 20-dimensional feature vector.</li>
+        </ol>
+        <p>
+            These features effectively describe the image's texture, aiding in distinguishing AI-generated faces from real ones.
+        </p>
+        <pre><code>
+self.glcm_fc = nn.Sequential(
+    nn.Linear(20, 64),
+    nn.BatchNorm1d(64),
+    nn.ReLU(),
+    nn.Dropout(0.5)
+)
+        </code></pre>
+
+        <h3>2.3. Spectral Features</h3>
+        <p>
+            Spectral analysis transforms the image from the spatial domain to the frequency domain using Fast Fourier Transform (FFT), revealing periodic and frequency characteristics. The steps include:
+        </p>
+        <ol>
+            <li><strong>FFT and Spectrum Shift</strong>: Applying 2D FFT and shifting the zero frequency component to the center.</li>
+            <li><strong>Magnitude Spectrum Calculation</strong>: Computing the magnitude and applying a logarithmic scale for contrast enhancement.</li>
+            <li><strong>Radial Averaging</strong>: Extracting the radial average of the spectrum to form a fixed-length (181-dimensional) feature vector.</li>
+        </ol>
+        <p>
+            These spectral features capture global frequency distributions, which are instrumental in identifying frequency domain artifacts in AI-generated images.
+        </p>
+        <pre><code>
+self.spectrum_conv = nn.Sequential(
+    nn.Conv1d(1, 64, kernel_size=3, padding=1),
+    nn.BatchNorm1d(64),
+    nn.ReLU(),
+    nn.AdaptiveAvgPool1d(1)
+)
+        </code></pre>
+
+        <h3>2.4. Edge Features</h3>
+        <p>
+            Edge information is critical for identifying structural inconsistencies in images. Utilizing the Canny edge detection algorithm, edge features are extracted and processed as follows:
+        </p>
+        <ol>
+            <li><strong>Edge Detection</strong>: Applying Canny to obtain a binary edge map.</li>
+            <li><strong>Resizing</strong>: Scaling the edge map to a fixed size (64x64) to reduce dimensionality.</li>
+            <li><strong>Feature Mapping</strong>: Passing the edge map through convolutional layers to extract high-dimensional features.</li>
+        </ol>
+        <p>
+            These features capture local structural information, facilitating the detection of edge discontinuities and anomalies typical in AI-generated images.
+        </p>
+        <pre><code>
+self.edge_conv = nn.Sequential(
+    nn.Conv2d(1, 32, kernel_size=3, padding=1),
+    nn.BatchNorm2d(32),
+    nn.ReLU(),
+    nn.AdaptiveAvgPool2d((8, 8))
+)
+        </code></pre>
+
+        <h3>2.5. Local Binary Patterns (LBP) Features</h3>
+        <p>
+            LBP serves as an efficient texture descriptor, capturing local texture patterns. The extraction process involves:
+        </p>
+        <ol>
+            <li><strong>LBP Calculation</strong>: Computing the LBP with a radius of 1 and 8 sampling points using the 'uniform' method.</li>
+            <li><strong>Histogram Generation</strong>: Creating a normalized histogram of the LBP image, resulting in a 10-dimensional feature vector.</li>
+        </ol>
+        <p>
+            LBP features effectively describe micro-texture structures, enabling the differentiation of subtle discrepancies between real and AI-generated faces.
+        </p>
+        <pre><code>
+self.lbp_fc = nn.Sequential(
+    nn.Linear(lbp_n_bins, 64),
+    nn.BatchNorm1d(64),
+    nn.ReLU(),
+    nn.Dropout(0.5)
+)
+        </code></pre>
+    </section>
+
+    <section class="content-section">
+        <h2>3. Attention Mechanism</h2>
+        <p>
+            To enhance the model's focus on critical features, each feature branch is followed by an independent attention module. The <code>AttentionBlock</code> comprises two fully connected layers with a bottleneck of one-eighth the original dimension, followed by ReLU activation and a sigmoid function to generate attention weights. This mechanism dynamically adjusts the importance of each feature, reinforcing key information and suppressing redundant data.
+        </p>
+        <pre><code>
+class AttentionBlock(nn.Module):
+    def __init__(self, in_features):
+        super(AttentionBlock, self).__init__()
+        self.attention = nn.Sequential(
+            nn.Linear(in_features, max(in_features // 8, 1)),
+            nn.ReLU(),
+            nn.Linear(max(in_features // 8, 1), in_features),
+            nn.Sigmoid()
+        )
+
+    def forward(self, x):
+        attention_weights = self.attention(x)
+        return x * attention_weights
+        </code></pre>
+    </section>
+
+    <section class="content-section">
+        <h2>4. Feature Fusion and Classification</h2>
+        <p>
+            After processing through their respective attention modules, all feature vectors are concatenated to form a comprehensive fusion feature vector. The fusion layer consists of fully connected layers that perform dimensionality reduction and non-linear transformations to integrate the multi-dimensional features effectively.
+        </p>
+        <ol>
+            <li><strong>Feature Concatenation</strong>: Combining image features (1408-dimensional), GLCM features (64-dimensional), spectral features (64-dimensional), edge features (2048-dimensional), and LBP features (64-dimensional) into a 3648-dimensional vector.</li>
+            <li><strong>Fusion Layers</strong>: Passing the concatenated features through sequential fully connected layers with batch normalization, ReLU activation, and dropout to capture complex feature interactions.</li>
+            <li><strong>Output Layer</strong>: Producing a single output value, which is transformed into a probability score via the sigmoid function for binary classification.</li>
+        </ol>
+        <pre><code>
+self.fusion = nn.Sequential(
+    nn.Linear(total_features, 512),
+    nn.BatchNorm1d(512),
+    nn.ReLU(),
+    nn.Dropout(0.5),
+    nn.Linear(512, 256),
+    nn.BatchNorm1d(256),
+    nn.ReLU(),
+    nn.Dropout(0.3),
+    nn.Linear(256, 1)
+)
+        </code></pre>
+    </section>
+
+    <section class="content-section">
+        <h2>5. Training Procedure</h2>
+        <p>
+            The training process incorporates several strategies to address class imbalance, enhance computational efficiency, adjust learning rates dynamically, and prevent overfitting:
+        </p>
+        <ul>
+            <li><strong>Loss Function</strong>: Utilizing <code>BCEWithLogitsLoss</code> suitable for binary classification tasks.</li>
+            <li><strong>Optimizer</strong>: Employing the Adam optimizer with a learning rate of 1e-4 and weight decay of 1e-5.</li>
+            <li><strong>Learning Rate Scheduler</strong>: Implementing <code>ReduceLROnPlateau</code> to reduce the learning rate by a factor of 0.5 if the validation accuracy does not improve for 3 consecutive epochs.</li>
+            <li><strong>Early Stopping</strong>: Introducing an early stopping mechanism that halts training if the validation accuracy does not improve for 10 consecutive epochs, thereby preventing overfitting.</li>
+            <li><strong>Mixed Precision Training</strong>: Leveraging <code>torch.cuda.amp</code> for mixed precision training to accelerate computation and reduce memory usage.</li>
+            <li><strong>Data Augmentation</strong>: Applying extensive data augmentation techniques including random horizontal flips, rotations, color jittering, affine transformations, and perspective distortions to enhance model generalization.</li>
+        </ul>
+        <pre><code>
+# Define loss function and optimizer
+criterion = nn.BCEWithLogitsLoss()
+optimizer = optim.Adam(model.parameters(), lr=1e-4, weight_decay=1e-5)
+scheduler = ReduceLROnPlateau(optimizer, mode='max', factor=0.5, patience=3, verbose=True)
+        </code></pre>
+    </section>
+
+    <section class="content-section">
+        <h2>6. Inference Pipeline</h2>
+        <p>
+            The inference process comprises data loading, feature extraction, model prediction, and result saving. The workflow is optimized for efficiency and scalability, suitable for large-scale image datasets.
+        </p>
+        <ol>
+            <li><strong>Data Loading</strong>: Utilizing a custom <code>InferenceDataset</code> class to load and preprocess images, ensuring consistency with the training phase.</li>
+            <li><strong>Feature Extraction</strong>: Extracting image features, GLCM features, spectral features, edge features, and LBP features for each image.</li>
+            <li><strong>Model Prediction</strong>: Feeding the extracted features into DeepAuthenFace to obtain classification probabilities, which are then thresholded to produce binary results.</li>
+            <li><strong>Result Saving</strong>: Compiling the predictions into a CSV file, sorted by filenames for ease of analysis.</li>
+        </ol>
+        <pre><code>
+def main():
+    # Set seeds for reproducibility
+    torch.manual_seed(42)
+    np.random.seed(42)
+    random.seed(42)
+
+    # Data directory
+    inference_dir = '/path/to/dataset'
+
+    # Define transformations
+    transform = transforms.Compose([
+        transforms.Resize((256, 256)),
+        transforms.ToTensor(),
+        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+    ])
+
+    # Initialize dataset and dataloader
+    dataset = InferenceDataset(image_dir=inference_dir, transform=transform)
+    dataloader = DataLoader(dataset, batch_size=64, shuffle=False, num_workers=16, pin_memory=True, persistent_workers=True, prefetch_factor=4)
+
+    # Load model
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    model = load_model('best_model.pth', device)
+
+    # Inference
+    results = []
+    with torch.no_grad():
+        for batch in tqdm(dataloader, desc="Processing Batches"):
+            images, glcm, spectrum, edge, lbp, filenames = batch
+            images = images.to(device)
+            glcm = glcm.to(device)
+            spectrum = spectrum.to(device)
+            edge = edge.to(device)
+            lbp = lbp.to(device)
+            outputs = model(images, glcm, spectrum, edge, lbp)
+            probabilities = torch.sigmoid(outputs)
+            predictions = (probabilities > 0.5).long().cpu().numpy()
+            for fname, pred in zip(filenames, predictions):
+                results.append((fname, int(pred)))
+
+    # Save results
+    results_sorted = sorted(results, key=lambda x: x[0])
+    with open('cla_pre.csv', mode='w', newline='') as csv_file:
+        writer = csv.writer(csv_file)
+        for fname, pred in results_sorted:
+            writer.writerow([fname, pred])
+    </code></pre>
+    </section>
+
+    <section class="content-section">
+        <h2>7. Results and Performance</h2>
+        <p>
+            DeepAuthenFace demonstrates exceptional performance in distinguishing between real and AI-generated faces. The integration of multi-modal features and the application of attention mechanisms contribute to its robustness and accuracy. The model effectively captures both global and local image characteristics, ensuring reliable detection across diverse datasets.
+        </p>
+        <img src="assets/training_metrics.png" alt="Training and Validation Metrics">
+    </section>
+
+    <section class="content-section">
+        <h2>8. Conclusion</h2>
+        <p>
+            DeepAuthenFace leverages the synergy of multi-feature integration and attention-based neural networks to deliver a highly accurate and robust solution for face authenticity detection. The model's comprehensive feature extraction and sophisticated attention mechanisms enable it to effectively differentiate between real and AI-generated faces, addressing critical challenges in security and privacy domains. Future work will explore the incorporation of additional feature extraction techniques and further refinement of attention mechanisms to enhance model performance and generalization.
+        </p>
+    </section>
+
+    <section class="content-section">
+        <h2>9. References</h2>
+        <ol class="references">
+            <li>Tan, M., & Le, Q. V. (2021). <strong>EfficientNetV2: Smaller Models and Faster Training</strong>. <em>arXiv preprint arXiv:2104.00298</em>.</li>
+            <li>Ioffe, S., & Szegedy, C. (2015). <strong>Batch Normalization: Accelerating Deep Network Training by Reducing Internal Covariate Shift</strong>. <em>International Conference on Machine Learning (ICML)</em>.</li>
+            <li>Haralick, R. M., Shanmugam, K., & Dinstein, I. (1973). <strong>Textural Features for Image Classification</strong>. <em>IEEE Transactions on Systems, Man, and Cybernetics</em>, 3(6), 610-621.</li>
+            <li>Ojala, T., Pietikäinen, M., & Harwood, D. (1996). <strong>Performance Evaluation of Texture Measures with Classification Based on Kullback Information Criterion</strong>. <em>Proceedings of the 14th International Conference on Pattern Recognition</em>.</li>
+            <li>Canny, J. (1986). <strong>A Computational Approach to Edge Detection</strong>. <em>IEEE Transactions on Pattern Analysis and Machine Intelligence</em>, PAMI-8(6), 679-698.</li>
+            <li>Pytorch Documentation. Retrieved from <a href="https://pytorch.org/docs/stable/index.html" target="_blank">https://pytorch.org/docs/stable/index.html</a></li>
+            <li>Wightman, R. (2023). <strong>Timm: PyTorch Image Models</strong>. Retrieved from <a href="https://github.com/rwightman/pytorch-image-models" target="_blank">https://github.com/rwightman/pytorch-image-models</a></li>
+        </ol>
+    </section>
+
+    <footer>
+        <p>&copy; 2024 DeepAuthenFace Project Team</p>
+    </footer>
+
+</body>
+</html>
