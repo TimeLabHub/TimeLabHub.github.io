@@ -197,8 +197,9 @@
         </ul>
         <div class="contact-info">
             <p>
-                <a href="https://github.com/Time-machine/DeepAuthenFace" target="_blank">GitHub Repository</a> |
+                <a href="https://github.com/Time-machine/DeepAuthenFace" target="_blank">GitHub</a> |
                 <a href="https://huggingface.co/Time-machine/DeepAuthenFace" target="_blank">Hugging Face</a> |
+                <a href="https://huggingface.co/Time-machine/DeepAuthenFace" target="_blank">Data</a> |
                 <a href="mailto:haijian.wang@example.com">wanghaijian05@gmail.com</a>
             </p>
         </div>
@@ -220,7 +221,7 @@
 
     <section class="content-section">
         <h2>2. Model Architecture</h2>
-        <img src="assets/img_1.jpg" alt="Model Architecture Diagram">
+        <img src="assets/img_1.png" alt="Model Architecture Diagram">
         <h3>2.1. Backbone Network (EfficientNetV2-B2)</h3>
         <p>
             The backbone of DeepAuthenFace is the pre-trained EfficientNetV2-B2 model, renowned for its superior feature extraction capabilities on the ImageNet dataset. To enhance training efficiency and prevent overfitting, the initial convolutional layers (<code>conv_stem</code>) and the first batch normalization layer (<code>bn1</code>) are frozen. The network outputs a 1408-dimensional feature vector, providing rich high-level semantic information essential for subsequent multi-feature fusion.
