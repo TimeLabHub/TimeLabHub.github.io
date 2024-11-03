@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DeepAuthenFace: Multi-Modal Feature Integration and Attention Mechanisms for Robust Real vs. AI-Generated Face Identification</title>
+    <title>AuthentiVision: Multi-Modal Feature Integration and Attention Mechanisms for Robust Real vs. AI-Generated Face Identification</title>
     <style>
         /* Global styles */
         body {
@@ -167,13 +167,8 @@
 <body>
     <div class="container">
         <header>
-            <h1>DeepAuthenFace: Finding Yourself in the Real World</h1>
-            <ul class="author-list">
-                <li><strong>Haijian Wang</strong></li>
-                <li><strong>Zhangbei Ding</strong></li>
-                <li><strong>Yefan Niu</strong></li>
-                <li><strong>Xiaoming Zhang</strong></li>
-            </ul>
+            <h1>AuthentiVision: Finding Yourself in the Real World</h1>
+
             <div class="contact-info">
                 <p>
                     <a href="https://github.com/Time-machine/DeepAuthenFace" target="_blank">GitHub</a> |
@@ -270,27 +265,15 @@
             <p>
                 To adjust the learning rate dynamically, we implement a scheduler (<code>ReduceLROnPlateau</code>) that reduces the learning rate by a factor of 0.5 if the validation accuracy does not improve for three consecutive epochs. This helps the model to escape local minima and converge to a better solution. An early stopping mechanism is also incorporated, which terminates the training if the validation accuracy does not improve for ten consecutive epochs, thus preventing overfitting.
             </p>
-            <img src="assets/img_2.png" alt="Training Metrics">
+            <img src="assets/img_22.png" alt="Training Metrics">
             <p>
                 To enhance computational efficiency, we leverage mixed precision training using <code>torch.cuda.amp</code>, which accelerates computations and reduces memory usage by performing operations in half-precision where appropriate. Data augmentation techniques are extensively applied to improve the model's generalization capabilities. These include random horizontal flips, rotations, color jittering, affine transformations, and perspective distortions, which introduce variability in the training data and help the model to be robust against diverse image conditions.
             </p>
         </section>
 
-        <section class="content-section">
-            <h2>6. Inference Pipeline</h2>
-            <p>
-                The inference process is streamlined for efficiency and scalability, suitable for deployment on large-scale image datasets. It involves several key steps: data loading, feature extraction, model prediction, and result saving. A custom <code>InferenceDataset</code> class is utilized to load and preprocess images consistently with the training phase, ensuring that the input data is appropriately normalized and transformed.
-            </p>
-            <p>
-                For each image, we extract the same set of features used during training: image features, GLCM features, spectral features, edge features, and LBP features. These features are then fed into the trained DeepAuthenFace model to obtain classification probabilities. The probabilities are thresholded to produce binary classification results, indicating whether each image is real or AI-generated.
-            </p>
-            <p>
-                The predictions are compiled into a CSV file, sorted by filenames for easy reference and analysis. This organized approach facilitates integration with downstream applications and allows for efficient batch processing of images.
-            </p>
-        </section>
 
         <section class="content-section">
-            <h2>7. Results and Performance</h2>
+            <h2>6. Results and Performance</h2>
             <p>
                 DeepAuthenFace demonstrates exceptional performance in distinguishing between real and AI-generated faces. The integration of multi-modal features allows the model to capture a wide range of information, from high-level semantic content to low-level texture and frequency details. The attention mechanisms effectively prioritize the most discriminative features, enhancing the model's ability to detect subtle differences.
             </p>
@@ -301,23 +284,10 @@
         </section>
 
         <section class="content-section">
-            <h2>8. Conclusion</h2>
+            <h2>7. Conclusion</h2>
             <p>
                 DeepAuthenFace leverages the synergy of multi-feature integration and attention-based neural networks to deliver a highly accurate and robust solution for face authenticity detection. The model's comprehensive feature extraction and sophisticated attention mechanisms enable it to effectively differentiate between real and AI-generated faces, addressing critical challenges in security and privacy domains. Future work will explore the incorporation of additional feature extraction techniques and further refinement of attention mechanisms to enhance model performance and generalization.
             </p>
-        </section>
-
-        <section class="content-section">
-            <h2>9. References</h2>
-            <ol class="references">
-                <li>Tan, M., & Le, Q. V. (2021). <strong>EfficientNetV2: Smaller Models and Faster Training</strong>. <em>arXiv preprint arXiv:2104.00298</em>.</li>
-                <li>Ioffe, S., & Szegedy, C. (2015). <strong>Batch Normalization: Accelerating Deep Network Training by Reducing Internal Covariate Shift</strong>. <em>International Conference on Machine Learning (ICML)</em>.</li>
-                <li>Haralick, R. M., Shanmugam, K., & Dinstein, I. (1973). <strong>Textural Features for Image Classification</strong>. <em>IEEE Transactions on Systems, Man, and Cybernetics</em>, 3(6), 610-621.</li>
-                <li>Ojala, T., Pietikäinen, M., & Harwood, D. (1996). <strong>Performance Evaluation of Texture Measures with Classification Based on Kullback Information Criterion</strong>. <em>Proceedings of the 14th International Conference on Pattern Recognition</em>.</li>
-                <li>Canny, J. (1986). <strong>A Computational Approach to Edge Detection</strong>. <em>IEEE Transactions on Pattern Analysis and Machine Intelligence</em>, PAMI-8(6), 679-698.</li>
-                <li>PyTorch Documentation. Retrieved from <a href="https://pytorch.org/docs/stable/index.html" target="_blank">https://pytorch.org/docs/stable/index.html</a></li>
-                <li>Wightman, R. (2023). <strong>Timm: PyTorch Image Models</strong>. Retrieved from <a href="https://github.com/rwightman/pytorch-image-models" target="_blank">https://github.com/rwightman/pytorch-image-models</a></li>
-            </ol>
         </section>
 
         <footer>
